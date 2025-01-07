@@ -2,10 +2,11 @@ from dash import Dash, dcc, html, Input, Output
 import pandas as pd
 import plotly.express as px
 import numpy as np
+import os
 from datetime import datetime
 
 # Load Dataset
-data_path = 'd:/2025/Dash/TOL_Dass/Prepared_True_Dataset_Updated.csv'
+data_path = os.path.join(os.path.dirname(__file__), 'TOL_dataset.csv') 
 data = pd.read_csv(data_path)
 
 # Data Preprocessing
