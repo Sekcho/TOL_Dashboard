@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 # Load Dataset
-data_path = 'TOL_dataset_numeric.csv'  # Ensure this file is in the same directory as app.py
+data_path = os.path.join(os.path.dirname(__file__), 'TOL_dataset_numeric.csv')
 data = pd.read_csv(data_path)
 
 # Convert columns to numeric where necessary
@@ -93,7 +93,11 @@ app.layout = html.Div([
     ], style={'width': '30%', 'display': 'inline-block', 'verticalAlign': 'top'}),
 
     # Map Display
-    dcc.Graph(id='map', style={'width': '65%', 'display': 'inline-block'}),
+    dcc.Graph(
+        id='map',
+        style={'width': '65%', 'display': 'inline-block'},
+        config={'scrollZoom': True}  # Enable mouse wheel zoom
+    ),
 ])
 
 # Callbacks for cascading filters
@@ -211,10 +215,6 @@ def update_map(province, district, subdistrict, happy_block, net_add_range, pote
     fig.update_layout(
         mapbox_style="open-street-map",
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
-        mapbox=dict(
-            zoom=6,
-            scrollZoom=True  # Enable mouse scroll for zoom
-        )
     )
     return fig
 
