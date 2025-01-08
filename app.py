@@ -3,17 +3,17 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 import os
-from datetime import datetime
 
 # Load Dataset
-data_path = os.path.join(os.path.dirname(__file__), 'TOL_dataset_numeric.csv')
+data_path = 'TOL_dataset_numeric.csv'  # Ensure this file is in the same directory as app.py
 data = pd.read_csv(data_path)
 
-# Convert 'L2 Inservice date' to datetime format for consistency
-data['L2 Inservice date'] = pd.to_datetime(data['L2 Inservice date'], errors='coerce')
-
-# Ensure 'L2_Aging' is numeric
-data['L2_Aging'] = pd.to_numeric(data['L2_Aging'], errors='coerce').fillna(0).astype(int)
+# Convert columns to numeric where necessary
+numeric_cols = ['Net Add', 'Potential Score', '%Port_Utilize', 'Market Share True (%)', 
+                'Market Share AIS (%)', 'Market Share 3BB (%)', 'Market Share NT (%)', 
+                'L2_Aging', 'Port Use']
+for col in numeric_cols:
+    data[col] = pd.to_numeric(data[col], errors='coerce').fillna(0)
 
 # Create Dash App
 app = Dash(__name__)
@@ -51,8 +51,8 @@ app.layout = html.Div([
             id='net-add-slider',
             min=int(data['Net Add'].min()),
             max=int(data['Net Add'].max()),
-            step=1,
-            marks={i: str(i) for i in range(int(data['Net Add'].min()), int(data['Net Add'].max()) + 1, 10)},
+            step=2,
+            marks={i: str(i) for i in range(int(data['Net Add'].min()), int(data['Net Add'].max()) + 1, 2)},
             value=[int(data['Net Add'].min()), int(data['Net Add'].max())],
         ),
         html.Label("Potential Score Range:"),
@@ -188,16 +188,34 @@ def update_map(province, district, subdistrict, happy_block, net_add_range, pote
         color="Potential Score",  # Color by Potential Score
         hover_name="Sub-district",
         hover_data={
-            "L2_Aging": True,
-            "Potential Score": True,
+            "Sub-District": filtered["Sub-district"],
+            "Household": True,
+            "Happy Block": True,
+            "L2": True,
+            "Port Capacity": True,
+            "Port Available": True,
+            "Port Use": True,
+            "%Port_Utilize": ":.2f",
             "Net Add": True,
-            "%Port_Utilize": True,
-            "Market Share True (%)": True,
+            "Market Share True (%)": ":.2f",
+            "Market Share AIS (%)": ":.2f",
+            "Market Share 3BB (%)": ":.2f",
+            "Market Share NT (%)": ":.2f",
+            "Competitor Speed": True,
+            "True Speed": True,
+            "L2_Aging": True,
         },
         color_continuous_scale="Viridis",
-        title="Sales Target Insights",
+        title="Potential Score and Sales Insights",
     )
-    fig.update_layout(mapbox_style="open-street-map", margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.update_layout(
+        mapbox_style="open-street-map",
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        mapbox=dict(
+            zoom=6,
+            scrollZoom=True  # Enable mouse scroll for zoom
+        )
+    )
     return fig
 
 # Run App
